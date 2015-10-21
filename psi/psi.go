@@ -8,6 +8,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"sync"
 
 	"github.com/alienchow/psi/parser"
 	"github.com/alienchow/psi/region"
@@ -25,14 +26,18 @@ type Reading interface {
 
 // NewReading creates a new Reading instance for loading and parsing PSI values
 func NewReading() Reading {
-	return &readingImpl{}
+	return &readingImpl{
+		twentyFourHour: map[region.Region]string{},
+	}
 }
 
 // readingImpl is the logic implementation for the exported Reading interface
 type readingImpl struct {
+	sync.Mutex
 	pageHTML       string
 	twentyFourHour map[region.Region]string
 	threeHour      string
+	err            error
 }
 
 // Refresh loads the page HTML from NEA website
@@ -63,18 +68,37 @@ func (r *readingImpl) Get(refRegion region.Region) string {
 
 // parsePSIValues parses the loaded HTML content into the various values
 func (r *readingImpl) parsePSIValues() error {
-	for _, regionType := range region.All {
-		PSI := parser.GetFunc(regionType)(r.pageHTML)
-		if PSI == "" {
-			return errors.New("NEA Website format has changed. Failed to parse HTML")
-		}
+	wg := &sync.WaitGroup{}
 
-		switch regionType {
-		case region.Invalid:
-			r.threeHour = PSI
-		default:
-			r.twentyFourHour[regionType] = PSI
-		}
+	for _, regionType := range region.All {
+		wg.Add(1)
+
+		go func(currentRegion region.Region) {
+			defer wg.Done()
+
+			PSI := parser.GetFunc(currentRegion)(r.pageHTML)
+
+			r.Lock()
+			defer r.Unlock()
+
+			if PSI == "" {
+				r.err = errors.New("NEA Website format has changed, failed to parse HTML")
+				return
+			}
+
+			switch currentRegion {
+			case region.Invalid:
+				r.threeHour = PSI
+			default:
+				r.twentyFourHour[currentRegion] = PSI
+			}
+		}(regionType)
+	}
+
+	wg.Wait()
+
+	if r.err != nil {
+		return r.err
 	}
 	return nil
 }

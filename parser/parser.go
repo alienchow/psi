@@ -44,7 +44,7 @@ func threeHourFunc(pageHTML string) string {
 	regex, _ := regexp.Compile(threeHourRegexString + psiRegexString)
 	matchString := regex.FindString(pageHTML)
 	psiRegex, _ := regexp.Compile(psiRegexString)
-	return psiRegex.FindString(matchString)
+	return psiRegex.FindString(matchString[1:])
 }
 
 // overallFunc is the closure function for parsing the overall 24-hour PSI range

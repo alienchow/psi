@@ -58,7 +58,7 @@ func get3HourPSI() string {
 	if PSI == "" {
 		return psiSite + " HTML format changed. Failed to load PSI."
 	}
-	return "Over 3-hour PSI reading is: " + PSI
+	return "Overall 3-hour PSI reading is: " + PSI
 }
 
 func getPSIByRegex(regex, page string) string {

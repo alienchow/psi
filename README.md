@@ -19,5 +19,5 @@ C: Central
 
 O: Overall
 
-<Nothing>: 3-Hour Average
+Nothing: 3-Hour Average
 

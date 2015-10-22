@@ -8,10 +8,16 @@ Usage:
 
 Options:
 N: North
-S: South
-E: East
-W: West
-C: Central
-Nothing: Overall
 
+S: South
+
+E: East
+
+W: West
+
+C: Central
+
+O: Overall
+
+<Nothing>: 3-Hour Average
 

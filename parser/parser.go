@@ -9,7 +9,7 @@ import (
 const (
 	threeHourRegexString = `3-hr\s*PSI:\s*`
 	overallRegexString   = `24-hr\s*PSI:\s*`
-	regionRegexString    = `</span>\s*<span class="direction">`
+	regionRegexString    = `">\d+</span>`
 	psiRegexString       = `\d+`
 	psiRangeRegexString  = `\d+\s*-\s*\d+`
 )
@@ -32,7 +32,7 @@ func GetFunc(r region.Region) Func {
 // regionFunc is the closure function for parsing region 24-Hour PSI
 func regionFunc(r region.Region) func(string) string {
 	return func(pageHTML string) string {
-		regex, _ := regexp.Compile(regionRegex(string(r)))
+		regex, _ := regexp.Compile(regionRegex(r))
 		matchString := regex.FindString(pageHTML)
 		psiRegex, _ := regexp.Compile(psiRegexString)
 		return psiRegex.FindString(matchString)
@@ -55,6 +55,6 @@ func overallFunc(pageHTML string) string {
 	return psiRegex.FindString(matchString)
 }
 
-func regionRegex(region string) string {
-	return psiRegexString + regionRegexString + region
+func regionRegex(r region.Region) string {
+	return string(r) + regionRegexString
 }

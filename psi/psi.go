@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	psiSite = `http://www.haze.gov.sg/haze-updates/psi`
+	psiSite = `http://www.haze.gov.sg/`
 )
 
 // Reading is the interface through which package users access PSI data
